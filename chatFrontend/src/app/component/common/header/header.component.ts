@@ -14,7 +14,7 @@ import Swal from 'sweetalert2';
   styleUrl: './header.component.css'
 })
 export class HeaderComponent {
-  defaultProfilePic: any = './assets/avathar.jpg'
+  defaultProfilePic: any = ''
 
 
   showProfileMenu = false;
@@ -30,7 +30,7 @@ export class HeaderComponent {
       console.log("user details", res)
       this.currentUser.name = res.data.name
       this.currentUser._id = res.data._id
-
+      this.defaultProfilePic=res.data.profileImage
 
     })
   }
