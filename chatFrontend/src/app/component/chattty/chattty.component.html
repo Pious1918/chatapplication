@@ -1,0 +1,277 @@
+<!-- app.component.html -->
+<div class="h-screen flex flex-col bg-gray-100">
+    <!-- Main App Header - Sticky -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <!-- Logo/Brand -->
+            <div class="flex items-center">
+                <svg class="h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+                <a [routerLink]="''" class="flex items-center">
+                    <h1 class="ml-2 text-xl font-semibold text-gray-800 hidden sm:block">ChatApp</h1>
+                </a>
+            </div>
+
+            <!-- Nav Items -->
+            <div class="flex items-center space-x-4">
+                <!-- Notification -->
+                <button type="button" [routerLink]="'poll'" class="text-white bg-gradient-to-r from-purple-500
+                     to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none
+                      focus:ring-purple-200 dark:focus:ring-purple-800 font-medium 
+                      rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Cast Your Votes</button>
+
+
+
+                <!-- Profile Menu -->
+                <div class="relative" x-data="{ open: false }">
+                    <button class="flex items-center focus:outline-none" (click)="toggleProfileMenu()">
+                        <img src={{defaultProfilePic}} alt="User avatar"
+                            class="h-8 w-8 rounded-full border-2 border-blue-500">
+                        <span class="ml-2 text-sm font-medium text-gray-700 hidden md:block">{{currentUser.name}}</span>
+                        <svg class="ml-1 h-5 w-5 text-gray-500 hidden md:block" xmlns="http://www.w3.org/2000/svg"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    <!-- Profile Dropdown Menu -->
+                    <div *ngIf="showProfileMenu"
+                        class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                        <a [routerLink]="'/profile'"
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Your Profile</a>
+                        <a [routerLink]="'/yourpolls'"
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Your Polls</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Help Center</a>
+                        <div class="border-t border-gray-100"></div>
+                        <a (click)="logout()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                    </div>
+                </div>
+
+                <!-- Power Button - Mobile Friendly -->
+                <button (click)="logout()" class="p-2 rounded-full hover:bg-gray-100 ml-2 text-red-500" title="Logout">
+                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex overflow-hidden">
+        <!-- User List Sidebar -->
+        <div class="w-full sm:w-80 lg:w-96 flex flex-col bg-white border-r border-gray-200">
+            <!-- Search -->
+            <div class="p-4 border-b border-gray-200">
+                <div class="relative">
+                    <input type="text" placeholder="Search contacts" [(ngModel)]="searchTerm"
+                        (keyup)="onSearchTermChange(searchTerm)"
+                        class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <svg class="absolute right-3 top-2.5 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- User List -->
+            <!-- User List -->
+            <div class="flex-1 overflow-y-auto">
+                <div *ngFor="let user of filteredUsers" (click)="selectUser(user)"
+                    class="p-3 border-b border-gray-100 flex items-center space-x-3 hover:bg-gray-50 cursor-pointer"
+                    [ngClass]="{'bg-blue-50': selectedUser?.id === user.id}">
+                    <div class="relative">
+                        <img src={{user.profileImage}} [alt]="user.name" class="w-12 h-12 rounded-full">
+                        <div *ngIf="user.status"
+                            class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white">
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between">
+                            <h2 class="text-sm font-medium text-gray-900 truncate">{{ user.name }}</h2>
+                            <span class="text-xs text-gray-500">{{ user.lastMessageTime }}</span>
+                        </div>
+                        <p class="text-xs text-gray-500 truncate">{{ user.lastMessage }}</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Chat Area -->
+        <div class="hidden sm:flex flex-1 flex-col">
+            <!-- Chat Header -->
+            <div *ngIf="selectedUser" class="p-4 border-b border-gray-200 bg-white flex items-center justify-between">
+                <div class="flex items-center">
+                    <img src={{defaultProfilePic}} [alt]="selectedUser.name" class="w-10 h-10 rounded-full mr-3">
+                    <div>
+                        <h2 class="font-medium text-gray-900">{{selectedUser.name}}</h2>
+                        <p class="text-xs text-gray-500">
+                            <span class="inline-block w-2 h-2 rounded-full mr-1"
+                                [ngClass]="{'bg-green-500': selectedUser.status, 'bg-gray-300': !selectedUser.status}"></span>
+                            {{selectedUser.status ? 'Online' : 'Offline'}}
+                        </p>
+                    </div>
+                </div>
+           
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!selectedUser" class="flex-1 flex items-center justify-center bg-gray-50">
+                <div class="text-center p-6">
+                    <svg class="mx-auto h-16 w-16 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                    <h3 class="mt-2 text-gray-600 text-lg">Select a conversation</h3>
+                    <p class="mt-1 text-gray-500 text-sm">Choose a contact to start chatting</p>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div #messagesContainer *ngIf="selectedUser" class="flex-1 p-4 overflow-y-auto bg-gray-50">
+                <div class="space-y-4">
+                    <!-- Message bubbles go here -->
+                    <div *ngFor="let message of messages">
+                        <!-- Sent Message -->
+                        <div *ngIf="message.sent" class="flex justify-end">
+                            <div class="max-w-xs lg:max-w-md bg-blue-500 text-white rounded-lg p-3">
+                                <p>{{message.text}}</p>
+                                <span class="text-xs text-blue-100 block text-right mt-1">{{message.time}}</span>
+                            </div>
+                        </div>
+
+                        <!-- Received Message -->
+                        <div *ngIf="!message.sent" class="flex">
+                            <div class="max-w-xs lg:max-w-md bg-white rounded-lg p-3 shadow-sm">
+                                <p class="text-gray-800">{{message.text}}</p>
+                                <span class="text-xs text-gray-500 block mt-1">{{message.time}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Message Input -->
+            <div *ngIf="selectedUser" class="p-4 bg-white border-t border-gray-200">
+                <div class="flex items-center">
+                    <!-- <button class="p-2 rounded-full text-gray-500 hover:text-gray-600 hover:bg-gray-100 mr-2">
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </button> -->
+                    <!-- <button class="p-2 rounded-full text-gray-500 hover:text-gray-600 hover:bg-gray-100 mr-2">
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                        </svg>
+                    </button> -->
+                    <div class="flex-1 mx-2">
+                        <input type="text" placeholder="Type your message..."
+                            class="w-full border-0 focus:ring-0 px-4 py-2 rounded-full bg-gray-100 focus:bg-white focus:outline-none"
+                            [(ngModel)]="newMessage" (keyup.enter)="sendMessage(selectedUser)">
+                    </div>
+                    <button (click)="sendMessage(selectedUser)"
+                        class="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile View - Selected User Chat -->
+        <div *ngIf="selectedUser" class="sm:hidden flex-1 flex flex-col">
+            <!-- Mobile Chat Header -->
+            <div class="p-3 border-b border-gray-200 bg-white flex items-center">
+                <button (click)="deselectUser()" class="mr-2">
+                    <svg class="h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <img [src]="selectedUser.avatar" [alt]="selectedUser.name" class="w-8 h-8 rounded-full mr-2">
+                <div class="flex-1">
+                    <h2 class="text-sm font-medium text-gray-900">{{selectedUser.name}}</h2>
+                    <p class="text-xs text-gray-500">
+                        <span class="inline-block w-2 h-2 rounded-full mr-1"
+                            [ngClass]="{'bg-green-500': selectedUser.online, 'bg-gray-300': !selectedUser.online}"></span>
+                        {{selectedUser.online ? 'Online' : 'Offline'}}
+                    </p>
+                </div>
+                <div class="flex">
+                    <button class="p-2 rounded-full hover:bg-gray-100">
+                        <svg class="h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Messages -->
+            <div class="flex-1 p-3 overflow-y-auto bg-gray-50">
+                <div class="space-y-3">
+                    <div *ngFor="let message of messages">
+                        <!-- Sent Message -->
+                        <div *ngIf="message.sent" class="flex justify-end">
+                            <div class="max-w-xs bg-blue-500 text-white rounded-lg p-3">
+                                <p>{{message.text}}</p>
+                                <span class="text-xs text-blue-100 block text-right mt-1">{{message.time}}</span>
+                            </div>
+                        </div>
+
+                        <!-- Received Message -->
+                        <div *ngIf="!message.sent" class="flex">
+                            <div class="max-w-xs bg-white rounded-lg p-3 shadow-sm">
+                                <p class="text-gray-800">{{message.text}}</p>
+                                <span class="text-xs text-gray-500 block mt-1">{{message.time}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Message Input -->
+            <div class="p-3 bg-white border-t border-gray-200">
+                <div class="flex items-center">
+                    <button class="p-1.5 rounded-full text-gray-500 hover:text-gray-600 hover:bg-gray-100 mr-1">
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </button>
+                    <div class="flex-1 mx-1">
+                        <input type="text" placeholder="Type your message..."
+                            class="w-full border-0 focus:ring-0 px-3 py-1.5 rounded-full bg-gray-100 focus:bg-white focus:outline-none text-sm"
+                            [(ngModel)]="newMessage" (keyup.enter)="sendMessage(selectedUser)">
+                    </div>
+                    <button (click)="sendMessage(selectedUser)"
+                        class="p-1.5 rounded-full bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

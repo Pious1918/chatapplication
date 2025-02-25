@@ -1,0 +1,131 @@
+<app-header></app-header>
+<div class="container mx-auto px-4 py-8 bg-[url('/assets/background.jpg')] bg-fixed bg-center">
+    <!-- Create Poll Section -->
+    <!-- Create Poll Section -->
+    <div class="container max-w-xl mx-auto mb-12 bg-white rounded-lg shadow-md">
+        <!-- Header with Toggle -->
+        <div class="p-6 flex justify-center items-center relative cursor-pointer" (click)="toggleCreateSection()">
+            <h2 class="text-2xl font-semibold text-gray-800">Create New Poll</h2>
+
+            <!-- Toggle Button -->
+            <button class="absolute right-6 text-gray-600 hover:text-gray-800 transition-colors">
+                <svg *ngIf="!isCreateSectionVisible" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+                <svg *ngIf="isCreateSectionVisible" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Collapsible Form Section -->
+        <div class="overflow-hidden transition-all duration-300" [ngStyle]="{
+        'max-height': isCreateSectionVisible ? '1000px' : '0',
+        'opacity': isCreateSectionVisible ? '1' : '0'
+      }">
+            <div class="p-6 pt-0">
+                <form [formGroup]="pollForm" (ngSubmit)="onSubmit()" class="space-y-4">
+                    <!-- Question Input -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Question
+                        </label>
+                        <input type="text" formControlName="question"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Enter your question">
+                    </div>
+
+                    <!-- Options -->
+                    <div formArrayName="options" class="space-y-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Options
+                        </label>
+
+                        <div *ngFor="let option of options.controls; let i = index" class="flex gap-2">
+                            <input [formControlName]="i" type="text"
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Enter option">
+                            <button type="button" *ngIf="options.length > 2" (click)="removeOption(i)"
+                                class="px-3 py-2 text-red-600 hover:bg-red-50 rounded-md transition-colors">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Add Option Button -->
+                    <button type="button" (click)="addOption()"
+                        class="px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors">
+                        + Add Option
+                    </button>
+
+                    <!-- Submit Button -->
+                    <button type="submit" [disabled]="!pollForm.valid"
+                        class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
+                        Create Poll
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- List Polls Section -->
+    <div class="container max-w-xl mx-auto bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl text-center font-semibold mb-6 text-gray-800">
+            Available Polls
+        </h2>
+
+        <div *ngIf="polls.length === 0" class="text-gray-500 text-center py-8">
+            No polls available yet
+        </div>
+
+        <div class="space-y-4">
+            <div *ngFor="let poll of polls" class="border border-gray-200 rounded-lg p-4">
+                <h3 class="text-lg font-medium text-gray-800 mb-3">
+                    {{ poll.question }}
+                </h3>
+                <div class="space-y-2">
+                    <button *ngFor="let option of poll.options; let i = index" (click)="vote(poll._id, i)"
+                        class="w-full px-4 py-2 bg-gray-50 rounded-md text-gray-700 flex justify-between items-center hover:cursor-pointer">
+                        <span>{{ option.text }}</span>
+                        <span class="text-blue-500 font-bold">{{ option.votes }}</span>
+                    </button>
+                </div>
+
+                <button *ngIf="poll.creatorId === userId" (click)="deletePoll(poll._id)"
+                    class="mt-3 w-full px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
+                    Delete Poll
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Pagination -->
+    <div class="mt-12 flex justify-center">
+        <nav class="flex items-center space-x-2" aria-label="Pagination">
+            <button (click)="changePage(currentPage - 1)"
+                class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 bg-white hover:cursor-pointer"
+                [disabled]="currentPage === 1">
+                Previous
+            </button>
+
+            <button *ngFor="let page of pages" class="px-3 py-2 rounded-md text-sm font-medium bg-gra"
+                [class.bg-gray-900]="page === currentPage" [class.text-white]="page === currentPage"
+                [class.text-gray-500]="page !== currentPage" [class.hover:bg-gray-200]="page !== currentPage">
+                {{page}}
+            </button>
+
+            <button (click)="changePage(currentPage + 1)"
+                class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 bg-white hover:cursor-pointer"
+                [disabled]="currentPage === totalPages">
+                Next
+            </button>
+        </nav>
+    </div>
+</div>
