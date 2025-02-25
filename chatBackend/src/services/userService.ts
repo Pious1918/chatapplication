@@ -6,34 +6,34 @@ import { IuserService } from "../interfaces/user.service.interface";
 
 
 
-export class UserService implements IuserService{
+export class UserService implements IuserService {
 
 
-    constructor(private _userRepository:IUserRepository , private _pollRepository:IpollRepository){
+    constructor(private _userRepository: IUserRepository, private _pollRepository: IpollRepository) {
 
     }
 
-    async registerUser(userdata:IUser){
+    async registerUser(userdata: IUser) {
 
         try {
             const existingUser = await this._userRepository.findbyEmail(userdata.email)
 
-            if(existingUser){
-                return {success:false , message:"user already exists"}
+            if (existingUser) {
+                return { success: false, message: "user already exists" }
             }
 
 
-            const hashPassword= await bcrypt.hash(userdata.password,10)
+            const hashPassword = await bcrypt.hash(userdata.password, 10)
             const newUser = await this._userRepository.createUser({
-                name:userdata.name,
-                email:userdata.email,
-                password:hashPassword,
-                phone:userdata.phone
+                name: userdata.name,
+                email: userdata.email,
+                password: hashPassword,
+                phone: userdata.phone
             })
 
             console.log("newuser @services")
 
-            return {success:true , message:"User Registered successfully" , data:newUser}
+            return { success: true, message: "User Registered successfully", data: newUser }
         } catch (error) {
             console.error("Error in registerUser", error)
             throw new Error("Failed to register user")
@@ -46,7 +46,7 @@ export class UserService implements IuserService{
 
         try {
 
-            const existingUser:any = await this._userRepository.findbyEmail(loginData.email)
+            const existingUser: any = await this._userRepository.findbyEmail(loginData.email)
             if (!existingUser) {
                 console.log("no such user")
                 return { success: false, message: 'Ivalid Email' }
@@ -58,7 +58,7 @@ export class UserService implements IuserService{
                 return { success: false, message: "Invalid Password" };
             }
 
-            await this._userRepository.updateStatus(existingUser._id, {status:true})
+            await this._userRepository.updateStatus(existingUser._id, { status: true })
 
             const payload = { userId: existingUser._id, email: existingUser.email, name: existingUser.name }
 
@@ -86,100 +86,105 @@ export class UserService implements IuserService{
         }
     }
 
-    async searchUsers(searchterm:string , currentusername:string){
+    async searchUsers(searchterm: string, currentusername: string) {
         try {
-            let kk = await this._userRepository.searchUsers(searchterm , currentusername)
-            console.log("serachere",kk)
+            let kk = await this._userRepository.searchUsers(searchterm, currentusername)
+            console.log("serachere", kk)
             return kk
         } catch (error) {
-            
+            console.error("Error in service searchUsers layer:", error);
+            throw error;
         }
     }
 
-    async allUsers(currentuserId:string){
+    async allUsers(currentuserId: string) {
         try {
             let kk = await this._userRepository.allUsers(currentuserId)
-            console.log("serachere",kk)
+            console.log("serachere", kk)
             return kk
         } catch (error) {
-            
+            console.error("Error in service allUsers layer:", error);
+            throw error;
         }
     }
 
-    async chathistory(userId1:any , userId2:any){
+    async chathistory(userId1: any, userId2: any) {
         try {
-            let messages = await this._userRepository.chathistory(userId1,userId2)
+            let messages = await this._userRepository.chathistory(userId1, userId2)
             return messages
         } catch (error) {
-            
+            console.error("Error in service chathistory layer:", error);
+            throw error;
         }
     }
 
 
-    async createPoll(polldetails:Ipolldetails){
+    async createPoll(polldetails: Ipolldetails) {
         try {
 
 
-            console.log("@userservice",polldetails)
-            polldetails.options = polldetails.options.map((opt:any) => ({
-                text: opt.text, 
+            console.log("@userservice", polldetails)
+            polldetails.options = polldetails.options.map((opt: any) => ({
+                text: opt.text,
                 votes: 0  // Default votes to 0
             }));
             const savedata = await this._pollRepository.createPoll(polldetails)
             return savedata
 
         } catch (error) {
-            console.error("error@service",error)
+            console.error("error@service", error)
         }
     }
 
 
-    async getAllPolls(page: number ,limit:number){
+    async getAllPolls(page: number, limit: number) {
         try {
 
 
             const offset = (page - 1) * limit
-            const polldata = await this._pollRepository.getallPolls(limit , offset)
+            const polldata = await this._pollRepository.getallPolls(limit, offset)
             return polldata
 
         } catch (error) {
-            console.error("error@service",error)
+            console.error("Error in service getAllPolls layer:", error);
+            throw error;
         }
     }
 
-    async getUserPolls(userId:string){
+    async getUserPolls(userId: string) {
         try {
 
 
             const polldata = await this._pollRepository.getUserPolls(userId)
+            return polldata
 
-           return polldata
-           
 
         } catch (error) {
-            console.error("error@service",error)
+            console.error("error@service", error)
+            throw error;
         }
     }
 
 
-    async countAllPolls(){
+    async countAllPolls() {
         try {
 
             return await this._pollRepository.countPoll()
 
         } catch (error) {
-            console.error("error@service",error)
+            console.error("error@service", error)
+            throw error;
         }
     }
 
 
-    async deletePoll(pollid:string){
+    async deletePoll(pollid: string) {
         try {
 
 
             const poll = await this._pollRepository.deletePoll(pollid)
 
-            if(!poll){
+            if (!poll) {
                 throw new Error(`Poll with ID ${pollid} not found`);
 
             }
@@ -187,7 +192,8 @@ export class UserService implements IuserService{
             return poll
 
         } catch (error) {
-            console.error("error@service",error)
+            console.error("error@service", error)
+            throw error;
         }
     }
 
@@ -201,7 +207,7 @@ export class UserService implements IuserService{
         }
     }
 
-        
+
     async updateUsername(userId: string, name: string): Promise<any> {
         try {
             const updatedUser = await this._userRepository.updateName(userId, { name: name });

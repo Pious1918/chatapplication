@@ -137,7 +137,7 @@ export class userController implements IuserController {
       res.json({ data: users });
 
     } catch (error) {
-      res.status(500).json({ message: 'Internal Server Error', error });
+      res.status(StatusCode.InternalServerError).json({ success: false, message: "Internal Server Error" });
 
     }
   }
@@ -152,6 +152,7 @@ export class userController implements IuserController {
       console.log("chat history", result)
       res.status(200).json({ message: 'all chats', chats: result })
     } catch (error) {
+      res.status(StatusCode.InternalServerError).json({ success: false, message: "Internal Server Error" });
 
     }
   }
@@ -179,6 +180,7 @@ export class userController implements IuserController {
 
 
     } catch (error) {
+      res.status(StatusCode.InternalServerError).json({ success: false, message: "Internal Server Error" });
 
     }
   }
@@ -202,6 +204,7 @@ export class userController implements IuserController {
 
 
     } catch (error) {
+      res.status(StatusCode.InternalServerError).json({ success: false, message: "Internal Server Error" });
 
     }
   }
@@ -222,6 +225,7 @@ export class userController implements IuserController {
 
 
     } catch (error) {
+      res.status(StatusCode.InternalServerError).json({ success: false, message: "Internal Server Error" });
 
     }
   }
@@ -230,7 +234,6 @@ export class userController implements IuserController {
   public deletePoll = async (req: IAuthRequest, res: Response): Promise<void> => {
     try {
 
-      // const pollId = req.params.pollid
 
       const pollId = req.params.pollid.startsWith(':')
         ? req.params.pollid.slice(1)
@@ -250,6 +253,7 @@ export class userController implements IuserController {
 
 
     } catch (error) {
+      res.status(StatusCode.InternalServerError).json({ success: false, message: "Internal Server Error" });
 
     }
   }

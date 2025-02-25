@@ -1,15 +1,15 @@
 import { FilterQuery, Model } from "mongoose";
 
-export class BaseRepository<T extends Document>{
+export class BaseRepository<T extends Document> {
 
     private _model: Model<T>
 
-    constructor(model: Model<T>){
-        this._model=model
+    constructor(model: Model<T>) {
+        this._model = model
     }
 
 
-    async save(item:Partial<T>):Promise<T | null>{
+    async save(item: Partial<T>): Promise<T | null> {
         const newItem = new this._model(item)
 
         return await newItem.save()
@@ -28,21 +28,21 @@ export class BaseRepository<T extends Document>{
     }
 
 
-    async findWithPagination( limit: number, offset: number): Promise<T[]> {
+    async findWithPagination(limit: number, offset: number): Promise<T[]> {
         return await this._model
             .find()
-            
+
             .skip(offset)
             .limit(limit)
             .exec();
     }
-    
+
     async countDocuments(): Promise<number> {
         return await this._model.countDocuments().exec();
     }
 
 
-    async deleteById(id: string):  Promise<T | null> {
+    async deleteById(id: string): Promise<T | null> {
         return await this._model.findByIdAndDelete(id);
     }
 
